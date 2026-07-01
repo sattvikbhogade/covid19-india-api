@@ -39,12 +39,25 @@ const convertStateObject = dbObject => ({
 
 //API_1
 app.get("/states/", async (request, response) => {
-    const getStatesQUery =`
+    const getStatesQuery =`
         SELECT *
         FROM state;
     `
 
-    const statesArray = await db.all(getStatesQUery)
+    const statesArray = await db.all(getStatesQuery)
     response.send(statesArray.map(eachState => convertStateObject(eachState)))
 })
 
+//API_2
+app.get("/states/:stateId/", async (request, response) => {
+    const { stateId } = request.params
+
+    const getStateQuery = `
+        SELECT *
+        FROM state 
+        WHERE state_id = ${stateId};
+    `
+
+    const state = await db.get(getStateQuery)
+    response.send(convertStateObject(state))
+})
