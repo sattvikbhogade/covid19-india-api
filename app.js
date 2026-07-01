@@ -110,3 +110,16 @@ app.get("/districts/:districtId/", async (request, response) => {
 
     response.send(convertDistrictObject(district))
 })
+
+//API_5
+app.delete("/districts/:districtId/", async(request, respone) => {
+    const { districtId } = request.params
+
+    const deleteDistrictQuery = `
+        DELETE FROM district
+        WHERE district_id = ${districtId};
+
+    `
+    await db.runt(deleteDistrictQuery)
+    response.send("District Removed")
+})
