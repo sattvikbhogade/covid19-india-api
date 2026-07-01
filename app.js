@@ -95,3 +95,18 @@ app.post("/districts/", async (request, response) => {
     response.send("District Successfully Added")
 
 })
+
+//API_4
+app.get("/districts/:districtId/", async (request, response) => {
+    const { districtId } = request.params
+
+    const getDistrictQuery = `
+        SELECT *
+        FROM district
+        WHERE district_id = ${districtId};
+    `
+
+    const district = await db.get(getDistrictQuery)
+
+    response.send(convertDistrictObject(district))
+})
