@@ -1,0 +1,50 @@
+ const express = require("express")
+const path = require("path")
+
+const sqlite3 = require("sqlite3")
+const { open } = require("sqlite")
+
+const app = express()
+
+app.use(express.json())
+
+const dbPath = path.join(__dirname, "covid19India.db")
+
+let db = null
+
+const initializeDBAndServer = async () => {
+  try {
+    db = await open({
+      filename: dbPath,
+      driver: sqlite3.Database,
+    })
+
+    app.listen(3000, () => {
+      console.log("Server Running at http://localhost:3000/")
+    })
+  } catch (e) {
+    console.log(`DB Error: ${e.message}`)
+    process.exit(1)
+  }
+}
+
+initializeDBAndServer()
+
+//converting snake_case to camelCase
+const convertStateObject = dbObject => ({
+    stateId: dbObject.state_id,
+    stateName: dbOject.state_name,
+    population: dbObject.population,
+})
+
+//API_1
+app.get("/states/", async (request, response) => {
+    const getStatesQUery =`
+        SELECT *
+        FROM state;
+    `
+
+    const statesArray = await db.all(getStatesQUery)
+    response.send(statesArray.map(eachState => convertStateObject(eachState)))
+})
+
