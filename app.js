@@ -61,3 +61,37 @@ app.get("/states/:stateId/", async (request, response) => {
     const state = await db.get(getStateQuery)
     response.send(convertStateObject(state))
 })
+
+//API_3
+app.post("/districts/", async (request, response) => {
+    const {
+        districtName,
+        stateId,
+        cases,
+        cured,
+        active,
+        deaths,
+    } = request.body
+
+    const addDistrictQuery = `
+        INSERT INTO district (
+        district_name,
+        state_id,
+        cases,
+        cured,
+        active,
+        deaths
+        )
+        VALUES (
+        '${districtName}',
+        ${stateId},
+        ${cases},
+        ${cured},
+        ${active},
+        ${deaths}
+        );
+    `
+    await db.run(addDistrictQuery)
+    response.send("District Successfully Added")
+
+})
