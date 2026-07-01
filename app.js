@@ -150,5 +150,23 @@ app.put("/districts/:districtId/", async (request, response) => {
     `
     await db.run(updateDistrictQuery)
     response.send("District Details Updated")
-    
+
+})
+
+//API_7
+app.get("/states/:stateId/stats/", async (request, response) => {
+    const { stateId } = request.params 
+
+    const getStateStatsQuery = `
+        SELECT
+            SUM(cases) AS totalCases,
+            SUM(cured) AS totalCured,
+            SUM(active) AS totalActive,
+            SUM(deaths) AS totalDeaths
+        FROM district 
+        WHERE state_id = ${stateId};
+    `
+
+    const stats = await db.get(getStateStatsQuery)
+    resonse.send(stats)
 })
