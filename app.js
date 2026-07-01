@@ -19,9 +19,7 @@ const initializeDBAndServer = async () => {
       driver: sqlite3.Database,
     })
 
-    app.listen(3000, () => {
-      console.log("Server Running at http://localhost:3000/")
-    })
+    
   } catch (e) {
     console.log(`DB Error: ${e.message}`)
     process.exit(1)
@@ -31,10 +29,20 @@ const initializeDBAndServer = async () => {
 initializeDBAndServer()
 
 //converting snake_case to camelCase
-const convertStateObject = dbObject => ({
+const convertStateObject = (dbObject) => ({
     stateId: dbObject.state_id,
-    stateName: dbOject.state_name,
+    stateName: dbObject.state_name,
     population: dbObject.population,
+})
+
+const convertDistrictObject = (dbObject) => ({
+    districtId: dbObject.district_id,
+    districtName: dbObject.district_name,
+    stateId: dbObject.state_id,
+    cases: dbObject.cases,
+    cured: dbObject.cured,
+    active: dbObject.active,
+    deaths: dbObject.deaths,
 })
 
 //API_1
@@ -112,7 +120,7 @@ app.get("/districts/:districtId/", async (request, response) => {
 })
 
 //API_5
-app.delete("/districts/:districtId/", async(request, respone) => {
+app.delete("/districts/:districtId/", async (request, response) => {
     const { districtId } = request.params
 
     const deleteDistrictQuery = `
@@ -120,7 +128,7 @@ app.delete("/districts/:districtId/", async(request, respone) => {
         WHERE district_id = ${districtId};
 
     `
-    await db.runt(deleteDistrictQuery)
+    await db.run(deleteDistrictQuery)
     response.send("District Removed")
 })
 
@@ -168,5 +176,24 @@ app.get("/states/:stateId/stats/", async (request, response) => {
     `
 
     const stats = await db.get(getStateStatsQuery)
-    resonse.send(stats)
+    response.send(stats)
 })
+
+//API_8 (we have to join state and district tables)
+app.get("/districts/:districtId/details/", async (request, response) => {
+    const {districtId} = request.params 
+
+    const getStateNameQuery = `
+        SELECT
+            state.state_name AS stateName 
+        FROM district
+        INNER JOIN state 
+        ON district.state_id = state.state_id 
+        WHERE district.district_id = ${districtId};
+    `
+    const stateName = await db.get(getStateNameQuery)
+
+    response.send(stateName)
+})
+
+module.exports = app
