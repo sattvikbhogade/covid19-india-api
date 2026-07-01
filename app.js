@@ -123,3 +123,32 @@ app.delete("/districts/:districtId/", async(request, respone) => {
     await db.runt(deleteDistrictQuery)
     response.send("District Removed")
 })
+
+//API_6
+app.put("/districts/:districtId/", async (request, response) => {
+    const { districtId } = request.params
+
+    const {
+        districtName,
+        stateId,
+        cases,
+        cured,
+        active,
+        deaths,
+    } = request.body
+
+    const updateDistrictQuery = `
+        UPDATE district
+        SET
+        district_name = '${districtName}',
+        state_id = ${stateId},
+        cases = ${cases},
+        cured = ${cured},
+        active = ${active},
+        deaths = ${deaths}
+        WHERE district_id = ${districtId};
+    `
+    await db.run(updateDistrictQuery)
+    response.send("District Details Updated")
+    
+})
